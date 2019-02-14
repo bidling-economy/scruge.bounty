@@ -98,4 +98,12 @@ class [[eosio::contract]] scrugebounty : public contract {
   	 };
   	
   	typedef multi_index<"projects"_n, projects> projects_i;
+  	
+    // token accounts
+    struct st_account {
+      asset balance; 
+      uint64_t primary_key() const { return balance.symbol.code().raw(); }
+    };
+    
+    typedef eosio::multi_index< "accounts"_n, st_account > st_accounts_i;
 };
