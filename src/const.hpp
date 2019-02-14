@@ -20,4 +20,4 @@ const uint64_t MIN_DURATION_MILLISECONDS = 10 * DAY;
 const uint64_t MAX_DURATION_MILLISECONDS = 365 * DAY;
 
 const auto BOUNTY_PRICE = asset(100000, EOS_SYMBOL);
-const char* PRICE_ERROR = "You have to pay 10 EOS";
+const char* PRICE_ERROR = "You have to pay 10 EOS.";

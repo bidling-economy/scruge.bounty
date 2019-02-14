@@ -26,7 +26,7 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
     uint64_t limitPerUser, uint64_t timeLimit, asset budget, name tokenContract) {
   
   require_auth(providerName);
-  eosio_assert(is_account(tokenContract), "Token contract account does not exist");
+  eosio_assert(is_account(tokenContract), "Token contract account does not exist.");
   
   st_accounts_i st_accounts(tokenContract, providerName.value);
   auto account = st_accounts.find(budget.symbol.code().raw());
@@ -81,11 +81,11 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   
   projects_i projects(_self, _self.value);
   auto project = projects.find(providerName.value);
-  eosio_assert(project != projects.end(), "This project doesn't exist");
+  eosio_assert(project != projects.end(), "This project doesn't exist.");
   
   bounties_i bounties(_self, providerName.value);
   auto bounty = bounties.find(bountyId);
-  eosio_assert(bounty != bounties.end(), "This bounty doesn't exist");
+  eosio_assert(bounty != bounties.end(), "This bounty doesn't exist.");
   
   auto limitPerUser = bounty->limitPerUser;
   auto timeLimit = bounty->timeLimit;
@@ -222,7 +222,7 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
       eosio_assert(submission->paid.amount == 0, 
           "Submission has already been paid for with your token.");
     }
-  
+
     submissions.modify(submission, hunterName, [&](auto& r) {
       if (isPayingEOS) {
         r.paidEOS += quantity;
@@ -245,7 +245,7 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
       }
     });
     
-    _transfer(code, _self, hunterName, quantity, "Bounty Reward");
+    _transfer(code, _self, hunterName, quantity, "BIDLing Economy: Scruge Bounty Reward.");
   }
 }
 
