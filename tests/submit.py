@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		SCENARIO("Test notify tranfer action")
+		SCENARIO("Test submit action")
 
 		reset()
 		create_master_account("master")
