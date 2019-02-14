@@ -28,9 +28,6 @@ class [[eosio::contract]] scrugebounty : public contract {
       
     void transfer(name from, name to, asset quantity, string memo);
   
-    // transfer args
-    struct st_transfer { name from; name to; asset quantity; string memo; };
-  
   private:
   
     void _transfer(name contract, name from, name to, asset quantity, string memo) {
