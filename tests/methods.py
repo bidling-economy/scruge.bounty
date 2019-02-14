@@ -38,13 +38,13 @@ def newbounty(scrugebounty, provider, duration, userLimit, limitPerUser, timeLim
 		}, 
 		permission=[(provider, Permission.ACTIVE)])
 
-def submit(scrugebounty, provider, hunter):
+def submit(scrugebounty, provider, hunter, bountyId):
 	scrugebounty.push_action("submit",
 		{
 			"hunterName": hunter, 
 			"providerName": provider,
 			"proof": "I did it",
-			"bountyId": 0
+			"bountyId": bountyId
 		},
 		permission=[(hunter, Permission.ACTIVE)])
 
