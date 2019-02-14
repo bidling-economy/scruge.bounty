@@ -29,6 +29,9 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
   eosio_assert(is_account(tokenContract), "Token contract account does not exist");
   
   st_accounts_i st_accounts(tokenContract, providerName.value);
+  auto account = st_accounts.find(budget.symbol.code().raw());
+  eosio_assert(account != st_accounts.end(), "You don't have any of these tokens.");
+  eosio_assert(account->balance.symbol == budget.symbol,"Budget symbol precision mismatch.");
   
   payments_i payments(_self, _self.value);
   auto payment = payments.find(providerName.value);
