@@ -190,12 +190,10 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
     projects_i projects(_self, _self.value);
     auto project = projects.find(from.value);
     eosio_assert(project != projects.end(), "You don't have a project.");
-
+    auto providerName = project->providerName;
+    
     eosio_assert(is_number(memo), "Incorrect memo. SubmissionId is a number.");
     auto submissionId = stoull(memo);
-    
-    auto providerName = project->providerName;
-    eosio_assert(providerName == from, "You are not the creator of this bounty.");
     
     submissions_i submissions(_self, providerName.value);
     auto submission = submissions.find(submissionId);
