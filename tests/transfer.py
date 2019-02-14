@@ -19,12 +19,12 @@ class Test(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		SCENARIO("Test newproject action")
+		SCENARIO("Test notify tranfer action")
 
 		reset()
 		create_master_account("master")
 
-		COMMENT("Create test accounts:")
+		COMMENT("Create test accounts")
 		key = CreateKey(is_verbose=False)
 		create_account("scrugebounty", master, "scrugebounty", key)
 		create_account("provider", master, "provider")
@@ -107,7 +107,7 @@ class Test(unittest.TestCase):
 		COMMENT("Paying and creating project")
 		pay(eosio_token, provider, scrugebounty, "10.0000 EOS", "payment")
 
-		sleep(1)
+		sleep(1) # work around duplicate transaction
 
 		# Paying twice
 		with self.assertRaises(Error) as c:
@@ -155,9 +155,9 @@ class Test(unittest.TestCase):
 		pay(customtoken1, provider, scrugebounty, "10.0000 TOK", "0")
 
 		COMMENT("Paying with EOS")
-		pay(eosio_token, provider, scrugebounty, "11.0000 EOS", "0")
+		pay(eosio_token, provider, scrugebounty, "10.0000 EOS", "0")
 
-		sleep(1)
+		sleep(1) # work around duplicate transaction
 
 		# Paying twice with your token
 		with self.assertRaises(Error) as c:
@@ -168,6 +168,22 @@ class Test(unittest.TestCase):
 		with self.assertRaises(Error) as c:
 			pay(eosio_token, provider, scrugebounty, "10.0000 EOS", "0")
 		self.assertIn("Submission has already been paid for with EOS", c.exception.message)
+
+		# Check submission paid and paidEOS values
+		t = scrugebounty.table("submissions", provider)
+		self.assertEqual(t.json["rows"][0]["paid"], "10.0000 TOK")
+		self.assertEqual(t.json["rows"][0]["paidEOS"], "10.0000 EOS")
+
+		# Check bounty paid and paidEOS values
+		t = scrugebounty.table("bounties", provider)
+		self.assertEqual(t.json["rows"][0]["paid"], "10.0000 TOK")
+		self.assertEqual(t.json["rows"][0]["paidEOS"], "10.0000 EOS")
+
+		# Check money went to user
+		t = customtoken1.table("accounts", hunter)
+		self.assertEqual(t.json["rows"][0]["balance"], "10.0000 TOK")
+		t = eosio_token.table("accounts", hunter)
+		self.assertEqual(t.json["rows"][0]["balance"], "10.0000 EOS")
 
 # main
 
