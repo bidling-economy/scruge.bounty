@@ -29,8 +29,6 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
   eosio_assert(is_account(tokenContract), "Token contract account does not exist");
   
   st_accounts_i st_accounts(tokenContract, providerName.value);
-  auto balance = st_accounts.find(budget.symbol.code().raw());
-  eosio_assert(balance != st_accounts.end(), "You don't have any of these tokens.");
   
   payments_i payments(_self, _self.value);
   auto payment = payments.find(providerName.value);
@@ -65,6 +63,7 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
     
     r.timeLimit = timeLimit;
     r.paid = asset(0, budget.symbol);
+    r.paidEOS = asset(0, EOS_SYMBOL);
     r.participantsPaid = 0;
     r.submissions = 0;
   });
@@ -145,6 +144,7 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
     r.proof = proof;
     r.bountyId = bountyId;
     r.paid = asset(0, bounty->budget.symbol);
+    r.paidEOS = asset(0, EOS_SYMBOL);
     r.timestamp = time_ms();
   });
   
@@ -222,10 +222,10 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
   
     submissions.modify(submission, hunterName, [&](auto& r) {
       if (isPayingEOS) {
-        r.paidEOS = quantity;
+        r.paidEOS += quantity;
       }
       else {
-        r.paid = quantity;
+        r.paid += quantity;
       }
     });
     
