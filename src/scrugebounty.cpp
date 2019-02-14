@@ -219,6 +219,8 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
     else {
       eosio_assert(bounty->tokenContract == code,
           "Trying to send tokens from a different contract.");
+      eosio_assert(bounty->paid.symbol == quantity.symbol, 
+          "Trying to pay with a different token.");
       eosio_assert(submission->paid.amount == 0, 
           "Submission has already been paid for with your token.");
     }
