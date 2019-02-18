@@ -21,7 +21,7 @@ void scrugebounty::newproject(name providerName, string projectDescription, stri
   });
 }
 
-void scrugebounty::newbounty(name providerName, string bountyDescription, string rewardsDescription, 
+void scrugebounty::newbounty(name providerName, string bountyName, string bountyDescription, string rewardsDescription, 
     string rulesDescription, uint64_t durationMilliseconds, uint64_t userLimit, 
     uint64_t limitPerUser, uint64_t timeLimit, asset budget, name tokenContract) {
   
@@ -39,6 +39,8 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
   
   eosio_assert(bountyDescription != "", "Enter your bounty description.");
   eosio_assert(rewardsDescription != "", "Enter your rewards description.");
+  eosio_assert(bountyName != "", "Enter your bounty name.");
+  eosio_assert(bountyName.length() < 50, "Bounty name should be shorter than this.");
   
   eosio_assert(durationMilliseconds > MIN_DURATION_MILLISECONDS,
       "Bounty can not be this short.");
@@ -54,6 +56,7 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
     r.providerName = providerName;
     r.bountyDescription = bountyDescription;
     r.rewardsDescription = rewardsDescription;
+    r.bountyName = bountyName;
     r.rulesDescription = rulesDescription;
     r.tokenContract = tokenContract;
     r.timestamp = time_ms();

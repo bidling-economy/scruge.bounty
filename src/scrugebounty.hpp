@@ -18,7 +18,7 @@ class [[eosio::contract]] scrugebounty : public contract {
 
     ACTION newproject(name providerName, string projectDescription, string projectName);
   
-    ACTION newbounty(name providerName, string bountyDescription, string rewardsDescription, 
+    ACTION newbounty(name providerName, string bountyName, string bountyDescription, string rewardsDescription, 
         string rulesDescription, uint64_t durationMilliseconds, uint64_t userLimit, 
         uint64_t limitPerUser, uint64_t timeLimit, asset budget, name tokenContract);
     
@@ -44,6 +44,7 @@ class [[eosio::contract]] scrugebounty : public contract {
   		string bountyDescription;
   		string rewardsDescription;
   		string rulesDescription;
+  		string bountyName;
   		name tokenContract;
   		
   		uint64_t userLimit;
