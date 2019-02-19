@@ -19,22 +19,22 @@ _Provider_ that has done this before skips straight to **Bounty Creation**. Othe
 1. _Provider_ sends a fee to the EOS account **scrugebounty**. This fee will only be consumer in the creation of a bounty later.
 2. _Provider_ initiates an action **newproject** with a description of their _Project_ specifying:
 - Provider Name (name of the account)
-- Project Description (including token economies)
+- Project Description (including token economies: total supply, inflation rate and expected exchange listing and other relevant info such as whitepaper, links etc.)
 - Project Name
 
 In this way, _Provider_ enters into _Bounty Agreement_, gets registered with the **scrugebounty** contracts and receives ID **providerName**
 
 # Bounty Creation
 
-_Provider_ sends a transaction to **scrugebounty** paying a fee for creation of the bounty. Then _Provider_ initiates an action **newbounty** with a description specifying thw following:
+_Provider_ sends a transaction to **scrugebounty** paying a fee for creation of the bounty. Then _Provider_ initiates an action **newbounty** with a description specifying the following:
 - Bounty Description
 - Rewards Description
 - Bounty Duration (in milliseconds)
 - Participation Limitations, like:
-* user limit
-* submissions per user
-* time limit for one user to participate again
-* Budget Constraints
+  * user limit
+  * submissions per user
+  * time limit for one user to participate again
+  * Budget Constraints
 
 In this way, **bountyID** is created.
 
