@@ -99,18 +99,17 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   
   submissions_i submissions(_self, providerName.value);
   
+  eosio_assert(time_ms() < endTimestamp, "This bounty has ended.");
+  
   // check limits 
-  auto paidSubmissionsCount = 0;
+  auto submissionsCount = 0;
   auto userSubmissionsCount = 0;
-  auto latestUserSubmissionTime = 0;
+  uint64_t latestUserSubmissionTime = 0;
   
   for (auto& submission: submissions) {
     
     if (submission.bountyId == bountyId) {
-      
-      if (submission.paid.amount > 0) {
-        paidSubmissionsCount++;
-      }
+      submissionsCount++;
       
       if (submission.hunterName == hunterName) {
         userSubmissionsCount++;
@@ -122,20 +121,20 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
     }
   }
   
+  auto resubmissionPeriod = time_ms() - latestUserSubmissionTime;
+  
   eosio_assert(budget.amount > paid.amount,
       "This bounty has reached its budget limit.");
   
-  eosio_assert(limitPerUser == 0 || userSubmissionsCount <= limitPerUser, 
+  eosio_assert(limitPerUser == 0 || userSubmissionsCount < limitPerUser,
       "You have reached per user limit of submissions.");
       
-  eosio_assert(timeLimit == 0 || latestUserSubmissionTime <= timeLimit,
+  eosio_assert(timeLimit == 0 || resubmissionPeriod > timeLimit,
       "You can not submit for this bounty this soon again.");
       
-  eosio_assert(userLimit == 0 || paidSubmissionsCount <= userLimit,
+  eosio_assert(userLimit == 0 || submissionsCount < userLimit,
       "This bounty has reached submissions limit.");
       
-  eosio_assert(time_ms() < endTimestamp,
-      "This bounty has ended.");
   
   auto submissionId = submissions.available_primary_key();
   
