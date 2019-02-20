@@ -19,8 +19,8 @@ class [[eosio::contract]] scrugebounty : public contract {
     ACTION newproject(name providerName, string projectDescription, string projectName);
   
     ACTION newbounty(name providerName, string bountyName, string bountyDescription, string rewardsDescription, 
-        string rulesDescription, uint64_t durationMilliseconds, uint64_t userLimit, 
-        uint64_t limitPerUser, uint64_t timeLimit, asset budget, name tokenContract);
+        string rulesDescription, uint64_t durationMilliseconds, uint64_t submissionLimit, 
+        uint64_t limitPerUser, uint64_t resubmissionPeriodMilliseconds, asset budget, name tokenContract);
     
     ACTION submit(name hunterName, name providerName, string proof, uint64_t bountyId);
   
@@ -47,9 +47,9 @@ class [[eosio::contract]] scrugebounty : public contract {
   		string bountyName;
   		name tokenContract;
   		
-  		uint64_t userLimit;
+  		uint64_t submissionLimit;
   		uint64_t limitPerUser;
-  		uint64_t timeLimit;
+  		uint64_t resubmissionPeriodMilliseconds;
   		uint64_t endTimestamp;
   		asset budget;
   		

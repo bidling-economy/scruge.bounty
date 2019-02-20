@@ -22,8 +22,8 @@ void scrugebounty::newproject(name providerName, string projectDescription, stri
 }
 
 void scrugebounty::newbounty(name providerName, string bountyName, string bountyDescription, string rewardsDescription, 
-    string rulesDescription, uint64_t durationMilliseconds, uint64_t userLimit, 
-    uint64_t limitPerUser, uint64_t timeLimit, asset budget, name tokenContract) {
+    string rulesDescription, uint64_t durationMilliseconds, uint64_t submissionLimit, 
+    uint64_t limitPerUser, uint64_t resubmissionPeriodMilliseconds, asset budget, name tokenContract) {
   
   require_auth(providerName);
   eosio_assert(is_account(tokenContract), "Token contract account does not exist.");
@@ -62,12 +62,12 @@ void scrugebounty::newbounty(name providerName, string bountyName, string bounty
     r.timestamp = time_ms();
     
     r.limitPerUser = limitPerUser;
-    r.timeLimit = timeLimit;
-    r.userLimit = userLimit;
+    r.resubmissionPeriodMilliseconds = resubmissionPeriodMilliseconds;
+    r.submissionLimit = submissionLimit;
     r.endTimestamp = time_ms() + durationMilliseconds;
     r.budget = budget;
     
-    r.timeLimit = timeLimit;
+    r.resubmissionPeriodMilliseconds = resubmissionPeriodMilliseconds;
     r.paid = asset(0, budget.symbol);
     r.paidEOS = asset(0, EOS_SYMBOL);
     r.participantsPaid = 0;
@@ -91,8 +91,8 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   eosio_assert(bounty != bounties.end(), "This bounty doesn't exist.");
   
   auto limitPerUser = bounty->limitPerUser;
-  auto timeLimit = bounty->timeLimit;
-  auto userLimit = bounty->userLimit;
+  auto resubmissionPeriodMilliseconds = bounty->resubmissionPeriodMilliseconds;
+  auto submissionLimit = bounty->submissionLimit;
   auto budget = bounty->budget;
   auto paid = bounty->paid;
   auto endTimestamp = bounty->endTimestamp;
@@ -129,10 +129,10 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   eosio_assert(limitPerUser == 0 || userSubmissionsCount < limitPerUser,
       "You have reached per user limit of submissions.");
       
-  eosio_assert(timeLimit == 0 || resubmissionPeriod > timeLimit,
+  eosio_assert(resubmissionPeriodMilliseconds == 0 || resubmissionPeriod > resubmissionPeriodMilliseconds,
       "You can not submit for this bounty this soon again.");
       
-  eosio_assert(userLimit == 0 || submissionsCount < userLimit,
+  eosio_assert(submissionLimit == 0 || submissionsCount < submissionLimit,
       "This bounty has reached submissions limit.");
       
   
