@@ -79,20 +79,22 @@ class Test(unittest.TestCase):
 
 	# tests
 
-	def test_newbounty_duration(self):
-		COMMENT("Creating project")
-		pay(eosio_token, provider2, scrugebounty, "10.0000 EOS", "payment")
-		newproject(scrugebounty, provider2)
+	# this test will not work, because min duration was changed to 10 DAYS
 
-		COMMENT("Creating bounty") # userLimit, limitPerUser, timeLimit
-		newbounty(scrugebounty, provider2, 5000, 3, 2, 3000, "1000.0000 TOK", customtoken1)
+	# def test_newbounty_duration(self):
+	# 	COMMENT("Creating project")
+	# 	pay(eosio_token, provider2, scrugebounty, "10.0000 EOS", "payment")
+	# 	newproject(scrugebounty, provider2)
 
-		sleep(6)
+	# 	COMMENT("Creating bounty") # submissionLimit, limitPerUser, resubmissionPeriodMilliseconds
+	# 	newbounty(scrugebounty, provider2, 5000, 3, 2, 3000, "1000.0000 TOK", customtoken1)
 
-		# Submit after end
-		with self.assertRaises(Error) as c:
-			submit(scrugebounty, provider2, hunter, 0)
-		self.assertIn("This bounty has ended", c.exception.message)
+	# 	sleep(6)
+
+	# 	# Submit after end
+	# 	with self.assertRaises(Error) as c:
+	# 		submit(scrugebounty, provider2, hunter, 0)
+	# 	self.assertIn("This bounty has ended", c.exception.message)
 
 	def test_newbounty(self):
 		DAY = 24 * 60 * 60 * 1000
@@ -112,8 +114,8 @@ class Test(unittest.TestCase):
 			submit(scrugebounty, provider, provider, 0)
 		self.assertIn("This bounty doesn't exist", c.exception.message)
 
-		COMMENT("Creating bounty") # userLimit, limitPerUser, timeLimit
-		newbounty(scrugebounty, provider, duration, 3, 2, 3000, "1000.0000 TOK", customtoken1)
+		COMMENT("Creating bounty") # submissionLimit, limitPerUser, resubmissionPeriodMilliseconds
+		newbounty(scrugebounty, provider, duration, 10, 5, 3000, "1000.0000 TOK", customtoken1)
 
 		COMMENT("Creating submission")
 		submit(scrugebounty, provider, hunter, 0)
@@ -140,19 +142,34 @@ class Test(unittest.TestCase):
 
 		sleep(4)
 
+		COMMENT("Creating more submissions")
+		submit(scrugebounty, provider, hunter, 0) # 1 - 3
+		sleep(2)
+		submit(scrugebounty, provider, hunter2, 0) # 2 - 1
+		sleep(4)
+		submit(scrugebounty, provider, hunter, 0) # 1 - 4
+		sleep(2)
+		submit(scrugebounty, provider, hunter2, 0) # 2 - 2
+		sleep(4)
+		submit(scrugebounty, provider, hunter, 0) # 1 - 5
+		sleep(2)
+		submit(scrugebounty, provider, hunter2, 0) # 2 - 3 
+		sleep(4)
+		submit(scrugebounty, provider, hunter2, 0) # 2 - 4
+		sleep(4)
+		submit(scrugebounty, provider, hunter2, 0) # 2 - 5
+		sleep(4)
+
 		# Submit over per user submission limit
 		with self.assertRaises(Error) as c:
 			submit(scrugebounty, provider, hunter, 0)
 		self.assertIn("You have reached per user limit of submissions", c.exception.message)	
 
-		COMMENT("Creating another user's submission")
-		submit(scrugebounty, provider, hunter2, 0)
-
 		sleep(4)
 
 		# Submit over submission limit
 		with self.assertRaises(Error) as c:
-			submit(scrugebounty, provider, hunter2, 0)
+			submit(scrugebounty, provider, hunter3, 0)
 		self.assertIn("This bounty has reached submissions limit", c.exception.message)
 
 # main

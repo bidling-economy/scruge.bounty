@@ -40,9 +40,16 @@ void scrugebounty::newbounty(name providerName, string bountyName, string bounty
   eosio_assert(bountyDescription != "", "Enter your bounty description.");
   eosio_assert(rewardsDescription != "", "Enter your rewards description.");
   eosio_assert(bountyName != "", "Enter your bounty name.");
-  eosio_assert(bountyName.length() < 50, "Bounty name should be shorter than this.");
+  eosio_assert(bountyName.length() <= 50, "Bounty name should be shorter than this.");
   
-  eosio_assert(durationMilliseconds > MIN_DURATION_MILLISECONDS,
+  eosio_assert(submissionLimit >= 10, "Submissions limit can not be this low.");
+  eosio_assert(limitPerUser > 0, "Submissions limit per user can not be 0.");
+  
+  eosio_assert(submissionLimit < 100000, "Submissions limit is too high.");
+  eosio_assert(limitPerUser < submissionLimit, "Submissions limit per user is too high.");
+  eosio_assert(resubmissionPeriodMilliseconds < durationMilliseconds, "Resubmission period is too long.");
+  
+  eosio_assert(durationMilliseconds > MIN_DURATION_MILLISECONDS, 
       "Bounty can not be this short.");
       
   eosio_assert(durationMilliseconds < MAX_DURATION_MILLISECONDS, 
@@ -126,13 +133,13 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   eosio_assert(budget.amount > paid.amount,
       "This bounty has reached its budget limit.");
   
-  eosio_assert(limitPerUser == 0 || userSubmissionsCount < limitPerUser,
+  eosio_assert(userSubmissionsCount < limitPerUser, 
       "You have reached per user limit of submissions.");
       
-  eosio_assert(resubmissionPeriodMilliseconds == 0 || resubmissionPeriod > resubmissionPeriodMilliseconds,
+  eosio_assert(resubmissionPeriod > resubmissionPeriodMilliseconds, 
       "You can not submit for this bounty this soon again.");
       
-  eosio_assert(submissionLimit == 0 || submissionsCount < submissionLimit,
+  eosio_assert(submissionsCount < submissionLimit, 
       "This bounty has reached submissions limit.");
       
   

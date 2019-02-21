@@ -16,7 +16,7 @@ const uint64_t HOUR = 60 * MINUTE;
 const uint64_t DAY = 24 * HOUR;
 
 // constants
-const uint64_t MIN_DURATION_MILLISECONDS = 0;
+const uint64_t MIN_DURATION_MILLISECONDS = 10 * DAY;
 const uint64_t MAX_DURATION_MILLISECONDS = 365 * DAY;
 
 const auto BOUNTY_PRICE = asset(100000, EOS_SYMBOL);
