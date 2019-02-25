@@ -145,7 +145,7 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   
   auto submissionId = submissions.available_primary_key();
   
-  bounties.modify(bounty, providerName, [&](auto& r) {
+  bounties.modify(bounty, same_payer, [&](auto& r) {
     r.submissions++;
   });
   
@@ -234,7 +234,7 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
           "Submission has already been paid for with your token.");
     }
 
-    submissions.modify(submission, hunterName, [&](auto& r) {
+    submissions.modify(submission, same_payer, [&](auto& r) {
       if (isPayingEOS) {
         r.paidEOS += quantity;
       }
@@ -243,7 +243,7 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
       }
     });
     
-    bounties.modify(bounty, providerName, [&](auto& r) {
+    bounties.modify(bounty, same_payer, [&](auto& r) {
       if (isPayingEOS) {
         r.paidEOS += quantity;
       }
