@@ -1,6 +1,6 @@
 ## Bounty Agreement serves to create a blockchain service in which people are rewarded with tokens for doing useful work
 
-The intent of the {{newproject}} action is to register a project {{providerName} that can list bounty campaigns for other people to complete
+The intent of the {{newproject}} action is to register a project {{providerName}} that can list bounty campaigns for other people to complete
 
 I,{{providerName}}, promise in good faith that:
 

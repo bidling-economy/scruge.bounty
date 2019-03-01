@@ -22,17 +22,18 @@ def newproject(scrugebounty, provider):
 		},
 		permission=[(provider, Permission.ACTIVE)])
 
-def newbounty(scrugebounty, provider, duration, userLimit, limitPerUser, timeLimit, budget, tokenContract):
+def newbounty(scrugebounty, provider, duration, submissionLimit, limitPerUser, resubmissionPeriodMilliseconds, budget, tokenContract):
 	scrugebounty.push_action("newbounty",
 		{
 			"providerName":  provider,
+			"bountyName": "Name",
 			"bountyDescription":  "Bounty Description",
 			"rewardsDescription":  "Reward Description",
 			"rulesDescription": "Rules Description",
     		"durationMilliseconds":  duration,
-    		"userLimit":  userLimit,
+    		"submissionLimit":  submissionLimit,
     		"limitPerUser":  limitPerUser,
-    		"timeLimit":  timeLimit,
+    		"resubmissionPeriodMilliseconds":  resubmissionPeriodMilliseconds,
     		"budget":  budget,
     		"tokenContract": tokenContract
 		}, 
@@ -52,13 +53,13 @@ def create_issue(contract, to, symbol):
 	contract.push_action("create",
 		{
 			"issuer": to,
-			"maximum_supply": "1000.0000 {}".format(symbol)
+			"maximum_supply": "1000000.0000 {}".format(symbol)
 		},
 		permission=[(contract, Permission.ACTIVE)])
 	contract.push_action("issue",
 		{
 			"to": to,
-			"quantity": "1000.0000 {}".format(symbol),
+			"quantity": "1000000.0000 {}".format(symbol),
 			"memo": ""
 		},
 		permission=[(to, Permission.ACTIVE)])

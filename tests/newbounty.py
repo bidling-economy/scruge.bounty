@@ -83,27 +83,30 @@ class Test(unittest.TestCase):
 	# tests
 
 	def test_newbounty(self):
-		DAY = 24 * 60 * 60 * 1000
+		SECOND = 1000;
+		MINUTE = 60 * SECOND
+		HOUR = 60 * MINUTE
+		DAY = 24 * HOUR
 		duration = 15 * DAY
 
 		# Token account doesn't exist
-		with self.assertRaises(Error) as c:
-			newbounty(scrugebounty, provider, duration, 0, 0, 0, "1000.0000 TOK", "nonexistant")
+		with self.assertRaises(Error) as c: # submissionLimit, limitPerUser, resubmissionPeriodMilliseconds
+			newbounty(scrugebounty, provider, duration, 10, 2, 0, "1000.0000 TOK", "nonexistant")
 		self.assertIn("Token contract account does not exist", c.exception.message)
 
 		# No tokens were issued or transferred to user
 		with self.assertRaises(Error) as c:
-			newbounty(scrugebounty, provider, duration, 0, 0, 0, "1000.0000 TOK", justaccount)
+			newbounty(scrugebounty, provider, duration, 10, 2, 0, "1000.0000 TOK", justaccount)
 		self.assertIn("You don't have any of these tokens", c.exception.message)
 		
 		# Token precision mismatch with actual contract
 		with self.assertRaises(Error) as c:
-			newbounty(scrugebounty, provider, duration, 0, 0, 0, "1000.000 TOK", customtoken1)
+			newbounty(scrugebounty, provider, duration, 10, 2, 0, "1000.000 TOK", customtoken1)
 		self.assertIn("Budget symbol precision mismatch", c.exception.message)
 
 		# Did not pay
 		with self.assertRaises(Error) as c:
-			newbounty(scrugebounty, provider, duration, 0, 0, 0, "1000.0000 TOK", customtoken1)
+			newbounty(scrugebounty, provider, duration, 10, 2, 0, "1000.0000 TOK", customtoken1)
 		self.assertIn("You did not pay for bounty creation yet", c.exception.message)
 
 		COMMENT("Creating project")
@@ -112,16 +115,16 @@ class Test(unittest.TestCase):
 
 		# Short duration
 		with self.assertRaises(Error) as c:
-			newbounty(scrugebounty, provider, 5 * DAY, 0, 0, 0, "1000.0000 TOK", customtoken1)
+			newbounty(scrugebounty, provider, 5 * DAY, 10, 2, 0, "1000.0000 TOK", customtoken1)
 		self.assertIn("Bounty can not be this short", c.exception.message)
 
 		# Long duration
 		with self.assertRaises(Error) as c:
-			newbounty(scrugebounty, provider, 1000 * DAY, 0, 0, 0, "1000.0000 TOK", customtoken1)
+			newbounty(scrugebounty, provider, 1000 * DAY, 10, 2, 0, "1000.0000 TOK", customtoken1)
 		self.assertIn("Bounty can not be this long", c.exception.message)
 
 		COMMENT("Creating bounty")
-		newbounty(scrugebounty, provider, duration, 0, 0, 0, "1000.0000 TOK", customtoken1)
+		newbounty(scrugebounty, provider, duration, 10, 2, 0, "1000.0000 TOK", customtoken1)
 
 		# Check bounty created
 		t = scrugebounty.table("bounties", provider)

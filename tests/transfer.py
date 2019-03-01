@@ -128,8 +128,8 @@ class Test(unittest.TestCase):
 		# Paying and creating project and bounty
 		pay(eosio_token, provider, scrugebounty, "10.0000 EOS", "payment")
 		newproject(scrugebounty, provider)
-		newbounty(scrugebounty, provider, 1000000000, 0, 0, 0, "1000.0000 TOK", customtoken1)
-		submit(scrugebounty, provider, hunter)
+		newbounty(scrugebounty, provider, 1000000000, 10, 2, 0, "1000.0000 TOK", customtoken1)
+		submit(scrugebounty, provider, hunter, 0)
 
 		# Submission not a number
 		with self.assertRaises(Error) as c:

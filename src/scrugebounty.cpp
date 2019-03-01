@@ -21,9 +21,9 @@ void scrugebounty::newproject(name providerName, string projectDescription, stri
   });
 }
 
-void scrugebounty::newbounty(name providerName, string bountyDescription, string rewardsDescription, 
-    string rulesDescription, uint64_t durationMilliseconds, uint64_t userLimit, 
-    uint64_t limitPerUser, uint64_t timeLimit, asset budget, name tokenContract) {
+void scrugebounty::newbounty(name providerName, string bountyName, string bountyDescription, string rewardsDescription, 
+    string rulesDescription, uint64_t durationMilliseconds, uint64_t submissionLimit, 
+    uint64_t limitPerUser, uint64_t resubmissionPeriodMilliseconds, asset budget, name tokenContract) {
   
   require_auth(providerName);
   eosio_assert(is_account(tokenContract), "Token contract account does not exist.");
@@ -39,8 +39,17 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
   
   eosio_assert(bountyDescription != "", "Enter your bounty description.");
   eosio_assert(rewardsDescription != "", "Enter your rewards description.");
+  eosio_assert(bountyName != "", "Enter your bounty name.");
+  eosio_assert(bountyName.length() <= 50, "Bounty name should be shorter than this.");
   
-  eosio_assert(durationMilliseconds > MIN_DURATION_MILLISECONDS,
+  eosio_assert(submissionLimit >= 10, "Submissions limit can not be this low.");
+  eosio_assert(limitPerUser > 0, "Submissions limit per user can not be 0.");
+  
+  eosio_assert(submissionLimit < 100000, "Submissions limit is too high.");
+  eosio_assert(limitPerUser < submissionLimit, "Submissions limit per user is too high.");
+  eosio_assert(resubmissionPeriodMilliseconds < durationMilliseconds, "Resubmission period is too long.");
+  
+  eosio_assert(durationMilliseconds > MIN_DURATION_MILLISECONDS, 
       "Bounty can not be this short.");
       
   eosio_assert(durationMilliseconds < MAX_DURATION_MILLISECONDS, 
@@ -54,17 +63,18 @@ void scrugebounty::newbounty(name providerName, string bountyDescription, string
     r.providerName = providerName;
     r.bountyDescription = bountyDescription;
     r.rewardsDescription = rewardsDescription;
+    r.bountyName = bountyName;
     r.rulesDescription = rulesDescription;
     r.tokenContract = tokenContract;
     r.timestamp = time_ms();
     
     r.limitPerUser = limitPerUser;
-    r.timeLimit = timeLimit;
-    r.userLimit = userLimit;
+    r.resubmissionPeriodMilliseconds = resubmissionPeriodMilliseconds;
+    r.submissionLimit = submissionLimit;
     r.endTimestamp = time_ms() + durationMilliseconds;
     r.budget = budget;
     
-    r.timeLimit = timeLimit;
+    r.resubmissionPeriodMilliseconds = resubmissionPeriodMilliseconds;
     r.paid = asset(0, budget.symbol);
     r.paidEOS = asset(0, EOS_SYMBOL);
     r.participantsPaid = 0;
@@ -88,26 +98,25 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
   eosio_assert(bounty != bounties.end(), "This bounty doesn't exist.");
   
   auto limitPerUser = bounty->limitPerUser;
-  auto timeLimit = bounty->timeLimit;
-  auto userLimit = bounty->userLimit;
+  auto resubmissionPeriodMilliseconds = bounty->resubmissionPeriodMilliseconds;
+  auto submissionLimit = bounty->submissionLimit;
   auto budget = bounty->budget;
   auto paid = bounty->paid;
   auto endTimestamp = bounty->endTimestamp;
   
   submissions_i submissions(_self, providerName.value);
   
+  eosio_assert(time_ms() < endTimestamp, "This bounty has ended.");
+  
   // check limits 
-  auto paidSubmissionsCount = 0;
+  auto submissionsCount = 0;
   auto userSubmissionsCount = 0;
-  auto latestUserSubmissionTime = 0;
+  uint64_t latestUserSubmissionTime = 0;
   
   for (auto& submission: submissions) {
     
     if (submission.bountyId == bountyId) {
-      
-      if (submission.paid.amount > 0) {
-        paidSubmissionsCount++;
-      }
+      submissionsCount++;
       
       if (submission.hunterName == hunterName) {
         userSubmissionsCount++;
@@ -119,24 +128,24 @@ void scrugebounty::submit(name hunterName, name providerName, string proof, uint
     }
   }
   
+  auto resubmissionPeriod = time_ms() - latestUserSubmissionTime;
+  
   eosio_assert(budget.amount > paid.amount,
       "This bounty has reached its budget limit.");
   
-  eosio_assert(limitPerUser == 0 || userSubmissionsCount <= limitPerUser, 
+  eosio_assert(userSubmissionsCount < limitPerUser, 
       "You have reached per user limit of submissions.");
       
-  eosio_assert(timeLimit == 0 || latestUserSubmissionTime <= timeLimit,
+  eosio_assert(resubmissionPeriod > resubmissionPeriodMilliseconds, 
       "You can not submit for this bounty this soon again.");
       
-  eosio_assert(userLimit == 0 || paidSubmissionsCount <= userLimit,
+  eosio_assert(submissionsCount < submissionLimit, 
       "This bounty has reached submissions limit.");
       
-  eosio_assert(time_ms() < endTimestamp,
-      "This bounty has ended.");
   
   auto submissionId = submissions.available_primary_key();
   
-  bounties.modify(bounty, providerName, [&](auto& r) {
+  bounties.modify(bounty, same_payer, [&](auto& r) {
     r.submissions++;
   });
   
@@ -225,7 +234,7 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
           "Submission has already been paid for with your token.");
     }
 
-    submissions.modify(submission, hunterName, [&](auto& r) {
+    submissions.modify(submission, same_payer, [&](auto& r) {
       if (isPayingEOS) {
         r.paidEOS += quantity;
       }
@@ -234,7 +243,7 @@ void scrugebounty::transfer(name from, name to, asset quantity, string memo) {
       }
     });
     
-    bounties.modify(bounty, providerName, [&](auto& r) {
+    bounties.modify(bounty, same_payer, [&](auto& r) {
       if (isPayingEOS) {
         r.paidEOS += quantity;
       }
